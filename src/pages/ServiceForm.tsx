@@ -75,7 +75,12 @@ export default function ServiceForm() {
   }, []);
 
   const service = services?.find(s => s.id.toString() === serviceId);
-  const isFileService = service?.formSchema.fields.some(f => f.type === "file");
+  
+
+  const activeSchema = service?.formSchema || (service as any)?.form_schema || { fields: [] };
+  const formFields = activeSchema.fields || [];
+
+  const isFileService = formFields.some(f => f.type === "file");
 
   const handleFieldChange = (fieldName: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
@@ -222,7 +227,7 @@ export default function ServiceForm() {
   };
 
   const renderField = (field: FormField) => {
-    const sortedFields = [...(service?.formSchema.fields || [])].sort((a, b) => a.order - b.order);
+    const sortedFields = [...formFields].sort((a, b) => (a.order || 0) - (b.order || 0));
     const fieldIndex = sortedFields.findIndex(f => f.id === field.id);
 
     if (field.type === "boolean") {
@@ -302,7 +307,7 @@ export default function ServiceForm() {
     );
   }
 
-  const sortedFields = [...service.formSchema.fields].sort((a, b) => a.order - b.order);
+  const sortedFields = [...formFields].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-12 px-4">
