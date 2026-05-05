@@ -1,6 +1,7 @@
 import type { ScreeningRequest, ScreeningResponse } from "@/types/service";
 
-const SCREENING_API_URL = "https://preca.admin.centerai.cloud/api/public/screenings";
+const API_URL = import.meta.env.VITE_API_URL || "https://preca.admin.centerai.cloud/api/public";
+const SCREENING_API_URL = `${API_URL}/screenings`;
 
 export interface ApiError {
   error: string;
@@ -12,6 +13,7 @@ export async function createScreening(data: ScreeningRequest): Promise<Screening
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${import.meta.env.VITE_API_KEY}`
     },
     body: JSON.stringify(data),
   });
