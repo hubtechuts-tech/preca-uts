@@ -143,7 +143,8 @@ export default function ServiceForm() {
       }
     }
 
-    const requiredFields = service.formSchema.fields.filter(f => f.required);
+   const activeSchema = service?.formSchema || (service as any)?.form_schema || { fields: [] };
+   const requiredFields = activeSchema.fields.filter((f: any) => f.required);
     for (const field of requiredFields) {
       if (!formData[field.name]) {
         errors[field.name] = `${field.label} es requerido`;
@@ -160,31 +161,42 @@ export default function ServiceForm() {
     setIsSubmitting(true);
 
     // Build request with applicant details if required
-    const requestData: Parameters<typeof createScreening>[0] = {
+// Build request with applicant details if required
+    const requestData: any = {
       serviceId: service.id.toString(),
       applicantName,
       applicantEmail,
       applicantPhone,
-      ...(advisorId && { advisorId }),
-      ...(advisorName && { advisorName }),
-      ...(advisorPhone && { advisorPhone }),
-      formData,
+      formData: { ...formData },        // ← Copia limpia
     };
 
-    // Add applicant details if required
+    // Advisor (solo si tienen valor)
+    if (advisorId?.trim()) {
+      requestData.advisorId = advisorId;
+    }
+    if (advisorName?.trim()) {
+      requestData.advisorName = advisorName;
+    }
+    if (advisorPhone?.trim()) {
+      requestData.advisorPhone = advisorPhone;
+    }
+
+    // Datos fiscales si son requeridos
     if (service.requiresApplicantDetails) {
       requestData.applicantPersonType = service.targetPersonType || "physical";
-      requestData.applicantRFC = applicantRFC;
-      requestData.applicantStreet = applicantStreet;
-      requestData.applicantColony = applicantColony;
-      requestData.applicantMunicipality = applicantMunicipality;
-      requestData.applicantState = applicantState;
-      requestData.applicantZipCode = applicantZipCode;
-      // Only include legal representative for "moral" type
+      requestData.applicantRFC = applicantRFC?.trim() || "";
+      requestData.applicantStreet = applicantStreet?.trim() || "";
+      requestData.applicantColony = applicantColony?.trim() || "";
+      requestData.applicantMunicipality = applicantMunicipality?.trim() || "";
+      requestData.applicantState = applicantState?.trim() || "";
+      requestData.applicantZipCode = applicantZipCode?.trim() || "";
+
       if (service.targetPersonType === "moral") {
-        requestData.applicantLegalRepresentative = applicantLegalRepresentative;
+        requestData.applicantLegalRepresentative = applicantLegalRepresentative?.trim() || "";
       }
     }
+
+    console.log("📤 Datos enviados al backend:", JSON.stringify(requestData, null, 2));
 
     try {
       const result = await createScreening(requestData);

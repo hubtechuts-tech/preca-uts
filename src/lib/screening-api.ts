@@ -1,6 +1,6 @@
 import type { ScreeningRequest, ScreeningResponse } from "@/types/service";
 
-const SCREENING_API_URL = "https://preca.admin.centerai.cloud/api/public/screenings";
+const SCREENING_API_URL = '/api/public';
 
 export interface ApiError {
   error: string;
@@ -8,7 +8,9 @@ export interface ApiError {
 }
 
 export async function createScreening(data: ScreeningRequest): Promise<ScreeningResponse> {
-  const response = await fetch(SCREENING_API_URL, {
+  const url = `${SCREENING_API_URL}/screenings`;   // ← Agrega /screenings
+
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -17,7 +19,9 @@ export async function createScreening(data: ScreeningRequest): Promise<Screening
   });
 
   if (!response.ok) {
-    const errorData: ApiError = await response.json().catch(() => ({ error: "Error desconocido" }));
+    const errorData: ApiError = await response.json().catch(() => ({ 
+      error: "Error desconocido del servidor" 
+    }));
     throw errorData;
   }
 
