@@ -9,7 +9,7 @@ export interface ApiError {
 }
 
 export async function createScreening(data: ScreeningRequest): Promise<ScreeningResponse> {
-  const url = `${SCREENING_API_URL}/screenings`;   // ← Agrega /screenings
+  const url = SCREENING_API_URL;   // ← Agrega /screenings
 
   const response = await fetch(url, {
     method: "POST",
